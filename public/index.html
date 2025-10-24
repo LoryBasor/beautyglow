@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeautyGlow - Cosmétiques Premium</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #fff5f7 100%);
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .admin-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: white;
+            color: #c44569;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.5rem;
+            color: #ff6b9d;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 30px rgba(255, 107, 157, 0.3);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0ec 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #c44569;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b9d;
+            margin-bottom: 1rem;
+        }
+
+        .whatsapp-btn {
+            width: 100%;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .whatsapp-btn:hover {
+            background: #20bd5a;
+        }
+
+        .admin-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .admin-mode .admin-actions {
+            display: flex;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .edit-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .edit-btn:hover, .delete-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-header h2 {
+            color: #c44569;
+        }
+
+        .close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b9d;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .image-preview.show {
+            display: block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .add-product-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .add-product-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .admin-btn {
+                position: static;
+                margin-top: 1rem;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>✨ BeautyGlow ✨</h1>
+        <p>Des produits cosmétiques naturels pour sublimer votre peau</p>
+        <button class="admin-btn" id="adminToggle">👤 Admin</button>
+    </header>
+
+    <div class="container">
+        <div id="adminPanel" style="display: none;">
+            <button class="add-product-btn" onclick="openAddModal()">➕ Ajouter un Produit</button>
+        </div>
+        <div class="loading" id="loading">Chargement des produits...</div>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+
+    <!-- Modal Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>🔐 Connexion Admin</h2>
+                <span class="close" onclick="closeLoginModal()">&times;</span>
+            </div>
+            <div id="loginError"></div>
+            <div class="form-group">
+                <label>Nom d'utilisateur</label>
+                <input type="text" id="adminUsername" value="admin">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <input type="password" id="adminPassword" placeholder="Entrez le mot de passe">
+            </div>
+            <button class="btn-primary" onclick="login()">Se connecter</button>
+        </div>
+    </div>
+
+    <!-- Modal Produit -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Ajouter un Produit</h2>
+                <span class="close" onclick="closeProductModal()">&times;</span>
+            </div>
+            <div id="productError"></div>
+            <form id="productForm" onsubmit="saveProduct(event)">
+                <div class="form-group">
+                    <label>Nom du produit *</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="productDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Prix *</label>
+                    <input type="text" id="productPrice" placeholder="Ex: 15 000 FCFA" required>
+                </div>
+                <div class="form-group">
+                    <label>Emoji/Icône</label>
+                    <input type="text" id="productIcon" placeholder="Ex: 🌟" maxlength="2">
+                </div>
+                <div class="form-group">
+                    <label>Image du produit</label>
+                    <input type="file" id="productImage" accept="image/*" onchange="previewImage()">
+                    <img id="imagePreview" class="image-preview">
+                </div>
+                <input type="hidden" id="productId">
+                <button type="submit" class="btn-primary" id="saveBtn">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 BeautyGlow - Tous droits réservés</p>
+    </footer>
+
+    <script>
+        // Configuration
+        const API_URL = window.location.origin;
+        const WHATSAPP_NUMBER = '237671646335'; // REMPLACEZ PAR VOTRE NUMÉRO
+
+        let products = [];
+        let isAdminMode = false;
+        let editingProductId = null;
+
+        // Charger tous les produits
+        async function loadProducts() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                const response = await fetch(`${API_URL}/api/products`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    products = data.products;
+                    displayProducts();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('productsGrid').innerHTML = 
+                    '<div class="empty-state"><h3>Erreur de chargement</h3><p>Impossible de charger les produits.</p></div>';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Afficher les produits
+        function displayProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            
+            if (products.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><h3>Aucun produit disponible</h3><p>Connectez-vous en tant qu\'admin pour ajouter des produits.</p></div>';
+                return;
+            }
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                if (isAdminMode) card.classList.add('admin-mode');
+                
+                const imageContent = product.image 
+                    ? `<img src="${API_URL}${product.image}" alt="${product.name}">`
+                    : `<div style="font-size: 5rem;">${product.icon || '📦'}</div>`;
+                
+                card.innerHTML = `
+                    <div class="admin-actions">
+                        <button class="edit-btn" onclick="editProduct(${product.id})">✏️</button>
+                        <button class="delete-btn" onclick="deleteProduct(${product.id})">🗑️</button>
+                    </div>
+                    <div class="product-image">${imageContent}</div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-description">${product.description}</div>
+                        <div class="product-price">${product.price}</div>
+                        <button class="whatsapp-btn" onclick="orderOnWhatsApp(${product.id})">
+                            <span>📱</span>
+                            Commander sur WhatsApp
+                        </button>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Prévisualiser l'image
+        function previewImage() {
+            const file = document.getElementById('productImage').files[0];
+            const preview = document.getElementById('imagePreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.add('show');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.classList.remove('show');
+            }
+        }
+
+        // Ouvrir modal d'ajout
+        function openAddModal() {
+            editingProductId = null;
+            document.getElementById('modalTitle').textContent = 'Ajouter un Produit';
+            document.getElementById('productForm').reset();
+            document.getElementById('imagePreview').classList.remove('show');
+            document.getElementById('productError').innerHTML = '';
+            document.getElementById('productModal').style.display = 'block';
+        }
+
+        // Éditer un produit
+        async function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            editingProductId = id;
+            document.getElementById('modalTitle').textContent = 'Modifier le Produit';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productDescription').value = product.description;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productIcon').value = product.icon || '';
+            document.getElementById('productError').innerHTML = '';
+            
+            const preview = document.getElementById('imagePreview');
+            if (product.image) {
+                preview.src = `${API_URL}${product.image}`;
+                preview.classList.add('show');
+            } else {
+                preview.classList.remove('show');
+            }
+            
+            document.getElementById('productModal').style.display = 'block';
+        }
+
+        // Sauvegarder le produit
+        async function saveProduct(event) {
+            event.preventDefault();
+
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Enregistrement...';
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('productName').value);
+            formData.append('description', document.getElementById('productDescription').value);
+            formData.append('price', document.getElementById('productPrice').value);
+            formData.append('icon', document.getElementById('productIcon').value);
+            
+            const imageFile = document.getElementById('productImage').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            try {
+                const url = editingProductId 
+                    ? `${API_URL}/api/products/${editingProductId}`
+                    : `${API_URL}/api/products`;
+                
+                const method = editingProductId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    await loadProducts();
+                    closeProductModal();
+                    alert(data.message);
+                } else {
+                    document.getElementById('productError').innerHTML = 
+                        `<div class="error-message">${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('productError').innerHTML = 
+                    '<div class="error-message">Erreur lors de l\'enregistrement</div>';
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Enregistrer';
+            }
+        }
+
+        // Supprimer un produit
+        async function deleteProduct(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/products/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    await loadProducts();
+                    alert(data.message);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la suppression');
+            }
+        }
+
+        // Fermer les modals
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        // Toggle admin mode
+        document.getElementById('adminToggle').addEventListener('click', function() {
+            if (isAdminMode) {
+                isAdminMode = false;
+                this.textContent = '👤 Admin';
+                document.getElementById('adminPanel').style.display = 'none';
+                displayProducts();
+            } else {
+                document.getElementById('loginModal').style.display = 'block';
+            }
+        });
+
+        // Login
+        async function login() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    isAdminMode = true;
+                    document.getElementById('adminToggle').textContent = '🚪 Déconnexion';
+                    document.getElementById('adminPanel').style.display = 'block';
+                    closeLoginModal();
+                    displayProducts();
+                } else {
+                    document.getElementById('loginError').innerHTML = 
+                        '<div class="error-message">Identifiants incorrects !</div>';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('loginError').innerHTML = 
+                    '<div class="error-message">Erreur de connexion</div>';
+            }
+        }
+
+        // WhatsApp
+        function orderOnWhatsApp(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const message = `Bonjour! 👋\n\nJe suis intéressé(e) par le produit:\n\n📦 *${product.name}*\n💰 Prix: ${product.price}\n\n${product.description}\n\nPouvez-vous me donner plus d'informations?`;
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+            window.open(whatsappLink, '_blank');
+        }
+
+        // Fermer modal avec Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeProductModal();
+                closeLoginModal();
+            }
+        });
+
+        // Initialisation au chargement de la page
+        window.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+        });
+    </script>
+</body>
+</html>
